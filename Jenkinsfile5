@@ -25,11 +25,8 @@ pipeline {
 
         stage('Deploy with Ansible') {
             steps {
-                ansiblePlaybook(
-                    playbook: 'tomcat.yml',
-                    inventory: 'hosts.ini'
-                )
-                sh 'ansible appservers -i hosts.ini -m copy -a "src=target/*.war dest=/opt/apache-tomcat-9.0.82/webapps/"'
+                sh 'ansible-playbook -i hosts.ini tomcat.yml'
+                sh 'ansible appservers -i hosts.ini -m copy -a "src=$WORKSPACE/target/*.war dest=/opt/apache-tomcat-9.0.82/webapps/"'
             }
         }
     }
