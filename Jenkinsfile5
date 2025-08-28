@@ -1,0 +1,36 @@
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven'
+    }
+
+    environment {
+        ANSIBLE_HOSTS = 'hosts.ini'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/yashpatel000007/addressbookt-cicd-project.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Deploy with Ansible') {
+            steps {
+                ansiblePlaybook(
+                    playbook: 'tomcat.yml',
+                    inventory: 'hosts.ini'
+                )
+                sh 'ansible appservers -i hosts.ini -m copy -a "src=target/*.war dest=/opt/apache-tomcat-9.0.82/webapps/"'
+            }
+        }
+    }
+}
